@@ -2,6 +2,7 @@ const connect = require("../db/connect");
 const validateUser = require("../services/validateUser");
 const validateCpf = require("../services/validateCpf");
 const validateLogin = require("../services/validateLogin");
+const jwt = require("jsonwebtoken");
 
 module.exports = class controllerUsuario {
   static async createUser(req, res) {
@@ -70,27 +71,37 @@ module.exports = class controllerUsuario {
     const values = [email];
 
     try {
-      connect.query(query, values, function (err, results) {
+      connect.query(query, [email], (err, results) => {
         if (err) {
-          console.log(err);
-          return res.status(500).json({ error: "Erro interno do Servidor" });
+          console.error("Erro ao executar a consulta:", err);
+          return res.status(500).json({ error: "Erro interno do servidor" });
         }
+
         if (results.length === 0) {
-          return res.status(404).json({ error: "Usuário não encontrado" });
+          return res.status(401).json({ error: "Usuário não encontrado" });
         }
 
-        const usuario = results[0];
+        const user = results[0];
 
-        // Verifica a senha
-        if (usuario.senha === senha) {
-          return res.status(200).json({ message: "Login realizado com sucesso!" });
-        } else {
+        if (user.senha !== senha) {
           return res.status(401).json({ error: "Senha incorreta" });
         }
+
+        const token = jwt.sign({ id: user.id_usuario }, process.env.SECRET, {expiresIn: "1h",}
+        );
+
+        //remove um atributo de objeto(o que é o delete)
+        delete user.senha;
+
+        return res.status(200).json({
+          message:"Login bem-sucedido",
+          user,
+          token
+        })
       });
     } catch (error) {
-      console.error(error);
-      return res.status(500).json({ error: "Erro Interno do Servidor" });
+      console.error("Erro ao executar a consulta:", error);
+      return res.status(500).json({ error: "Erro interno do servidor" });
     }
   }
 

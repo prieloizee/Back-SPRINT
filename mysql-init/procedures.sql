@@ -1,27 +1,5 @@
--- Registrará todas as reservas
-delimiter //
 
-create procedure registrar_reserva (
-    in p_id_usuario int,
-    in p_id_sala int,
-    in p_datahora_inicio datetime,
-    in p_datahora_fim datetime
-)
-begin
-    declare v_id_reserva int; -- declaração da variavel
-
-
-    insert into reserva (datahora_inicio, datahora_fim, fk_id_usuario, fk_id_sala)
-    values (p_datahora_inicio, p_datahora_fim, p_id_usuario, p_id_sala);
-
-    set v_id_reserva = last_insert_id();
-
-end //
-
-delimiter ;
-
-
-  --mostar todos as reservas feitas
+ --Mostrar todas as reservas feitas por um usuário, com detalhes sobre a reserva
 
   delimiter //
 
@@ -49,3 +27,18 @@ show procedure status where db = 'projeto_senai';
 set @total = 0;
 
 call total_reservas_usuarios(2, @total);
+
+
+--Excluir reserva
+DELIMITER $$
+
+create procedure `cancelar_reserva` (
+    IN p_id_reserva INT
+)
+BEGIN
+    DELETE FROM reserva WHERE id_reserva = p_id_reserva;
+END $$
+
+DELIMITER ;
+
+call cancelar_reserva(3);
