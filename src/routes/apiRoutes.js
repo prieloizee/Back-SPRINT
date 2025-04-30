@@ -16,6 +16,7 @@ router.post('/sala',verifyJWT, controllerSala.createSala);
 router.get('/salas',controllerSala.getAllSalas);
 router.put('/sala',verifyJWT, controllerSala.updateSala);
 router.delete('/sala/:id',verifyJWT, controllerSala.deleteSala);
+router.get("/disponiveis", controllerSala.getSalasDisponiveis);
 
 //Rotas de reserva
 router.post("/reserva", reservaController.createReservas); 

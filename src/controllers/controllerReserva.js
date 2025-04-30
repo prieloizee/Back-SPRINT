@@ -3,20 +3,25 @@ const validateReserva = require("../services/validateReserva");
 
 module.exports = class controllerReserva {
   // CREATE RESERVA
-  static async createReservas(req, res) {
+  static async  createReservas(req, res) {
     // Corpos da requisição
-    const { fk_id_usuario, fk_id_sala, datahora_inicio, datahora_fim } = req.body;
+    const { fk_id_usuario, fk_id_sala, datahora_inicio, datahora_fim } =
+      req.body;
 
-      const validationError = validateReserva(req.body);
-        if (validationError) {
-          return res.status(400).json(validationError);
-        }
+    console.log("Body: ", fk_id_usuario, fk_id_sala, datahora_inicio, datahora_fim);
+
+    const validationError = validateReserva(req.body);
+    if (validationError) {
+      return res.status(400).json(validationError);
+    }
 
     try {
       // Verifica se o usuário existe
       const queryUsuario = `SELECT * FROM usuario WHERE id_usuario = ?`;
       const valuesUsuario = [fk_id_usuario];
-      const [resultadosU] = await connect.promise().query(queryUsuario, valuesUsuario);
+      const [resultadosU] = await connect
+        .promise()
+        .query(queryUsuario, valuesUsuario);
       if (resultadosU.length === 0) {
         return res.status(404).json({ error: "Usuário não encontrado" });
       }
@@ -24,7 +29,9 @@ module.exports = class controllerReserva {
       // Verifica se a sala existe
       const querySala = `SELECT * FROM sala WHERE id_sala = ?`;
       const valuesSala = [fk_id_sala];
-      const [resultadosS] = await connect.promise().query(querySala, valuesSala);
+      const [resultadosS] = await connect
+        .promise()
+        .query(querySala, valuesSala);
       if (resultadosS.length === 0) {
         return res.status(404).json({ error: "Sala não encontrada" });
       }
@@ -38,31 +45,49 @@ module.exports = class controllerReserva {
       )`;
 
       const valuesHorario = [
-        fk_id_sala, datahora_inicio, datahora_inicio, datahora_inicio, datahora_fim,
-        datahora_inicio, datahora_fim, datahora_inicio, datahora_fim,
+        fk_id_sala,
+        datahora_inicio,
+        datahora_inicio,
+        datahora_inicio,
+        datahora_fim,
+        datahora_inicio,
+        datahora_fim,
+        datahora_inicio,
+        datahora_fim,
       ];
 
-      const [resultadosH] = await connect.promise().query(queryHorario, valuesHorario);
+      const [resultadosH] = await connect
+        .promise()
+        .query(queryHorario, valuesHorario);
       if (resultadosH.length > 0) {
-        return res.status(400).json({ error: "A sala escolhida já está reservada neste horário" });
+        return res
+          .status(400)
+          .json({ error: "A sala escolhida já está reservada neste horário" });
       }
 
       // Query para criar a nova reserva no banco de dados
       const queryInsert = `INSERT INTO reserva (fk_id_usuario, fk_id_sala, datahora_inicio, datahora_fim) VALUES (?, ?, ?, ?)`;
-      const valuesInsert = [fk_id_usuario, fk_id_sala, datahora_inicio, datahora_fim];
+      const valuesInsert = [
+        fk_id_usuario,
+        fk_id_sala,
+        datahora_inicio,
+        datahora_fim,
+      ];
 
       // Realiza a inserção da reserva no banco de dados
       await connect.promise().query(queryInsert, valuesInsert);
 
       // Retorna sucesso
       return res.status(201).json({ message: "Sala reservada com sucesso!" });
-    }  catch (error) {
+    } catch (error) {
       console.error("Erro ao criar reserva: ", error); // Log do erro
-      return res.status(500).json({ error: "Erro ao criar reserva", details: error.message });
+      return res
+        .status(500)
+        .json({ error: "Erro ao criar reserva", details: error.message });
     }
-  };
+  }
 
-  //TODAS AS RESERVAS 
+  //TODAS AS RESERVAS
   static getAllReservas(req, res) {
     const query = `SELECT * FROM reserva`;
 
@@ -71,7 +96,7 @@ module.exports = class controllerReserva {
         console.error(err);
         return res.status(500).json({ error: "Erro Interno do Servidor" });
       }
-      
+
       return res
         .status(200)
         .json({ message: "Obtendo todas as reservas", reservas: results });
@@ -98,4 +123,4 @@ module.exports = class controllerReserva {
       return res.status(200).json({ message: "Reserva excluída com sucesso" });
     });
   }
-}; 
+};

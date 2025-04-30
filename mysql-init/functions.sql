@@ -18,6 +18,8 @@ begin
 select total_reservas_usuario(3) as "Total de reservas";
 
 
+
+
 -- disponibilidade de uma sala
 delimiter $$
 create function verificar_disponibilidade_sala(
@@ -31,6 +33,7 @@ begin
     declare v_count int;
 
     -- Verificar se a sala está ocupada no período solicitado
+    --Between verifica se há um valor dentro do intervalo, incluindo limites
     select count(*) into v_count
     from reserva
     where fk_id_sala = p_id_sala
@@ -43,6 +46,7 @@ begin
 end $$
 delimiter ;
 
-select verificar_disponibilidade_sala(2, '2025-04-17 10:00:00', '2025-04-17 12:00:00') as disponibilidade;
+select verificar_disponibilidade_sala(2, '2025-03-28 15:00:00.00', '2025-03-28 16:00:00.00') as disponibilidade;
+
 
 

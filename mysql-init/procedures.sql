@@ -1,44 +1,38 @@
+--Excluir reserva
+delimiter $$
 
- --Mostrar todas as reservas feitas por um usuário, com detalhes sobre a reserva
-
-  delimiter //
-
-create procedure total_reservas_usuarios(
-    in p_id_usuario int,
-    out p_total_reservas int
+create procedure `cancelar_reserva` (
+    in p_id_reserva int
 )
-begin 
-    -- Inicializando a variável de saída
-    set p_total_reservas = 0;
-
-    -- Realizando a consulta para calcular o total de reservas para o usuário
-    select coalesce(sum(ir.quantidade), 0)
-    into p_total_reservas
-    from reserva_feita ir
-    join reserva r ON ir.fk_id_reserva = r.id_reserva
-    where r.fk_id_usuario = p_id_usuario;
-
-end //
+begin
+    delete from reserva where id_reserva = p_id_reserva;
+end $$
 
 delimiter ;
 
-show procedure status where db = 'projeto_senai';
+call cancelar_reserva(2);
 
-set @total = 0;
+--Lista salas disponiveis 
 
-call total_reservas_usuarios(2, @total);
+delimiter $$
+
+create procedure listar_salas_disponiveis(in p_inicio datetime, in p_fim datetime)
+begin
+    select s.id_sala, s.numero as sala
+    from sala s
+    where s.id_sala not in (
+        select r.fk_id_sala
+        from reserva r
+        where 
+            (r.datahora_inicio between p_inicio and p_fim) or
+            (r.datahora_fim between p_inicio and p_fim) or
+            (p_inicio between r.datahora_inicio and r.datahora_fim) OR
+            (p_fim between r.datahora_inicio and r.datahora_fim)
+    );
+end $$
+
+delimiter ;
 
 
---Excluir reserva
-DELIMITER $$
+call listar_salas_disponiveis('2025-05-01 10:00:00', '2025-05-01 12:00:00');
 
-create procedure `cancelar_reserva` (
-    IN p_id_reserva INT
-)
-BEGIN
-    DELETE FROM reserva WHERE id_reserva = p_id_reserva;
-END $$
-
-DELIMITER ;
-
-call cancelar_reserva(3);

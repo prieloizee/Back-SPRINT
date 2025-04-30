@@ -50,6 +50,26 @@ module.exports = class controllerSala {
       return res.status(500).json({ error: "Erro interno do servidor" });
     }
   }
+  
+  static async getSalasDisponiveis(req, res) {
+  const query = `SELECT * FROM sala where id_sala not in ( select id_sala from reserva);
+  `;
+
+  try {
+    connect.query(query, function (err, results) {
+      if (err) {
+        console.error("Erro ao buscar salas disponíveis", err);
+        return res.status(500).json({ error: "Erro interno do servidor" });
+      }
+
+      return res.status(200).json(results);
+    });
+  } catch (error) {
+    console.error("Erro ao executar consulta:", error);
+    return res.status(500).json({ error: "Erro interno do servidor" });
+  }
+}
+
 
   static async updateSala(req, res) {
     // Desestrutura e recupera os dados enviados via corpo da requisição
