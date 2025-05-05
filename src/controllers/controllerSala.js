@@ -109,49 +109,4 @@ module.exports = class controllerSala {
       return res.status(500).json({ error: "Erro interno do servidor" });
     }
   }
-
-  static async getHorariosReservados(req, res) {
-    const { datahora_inicio, datahora_fim, fk_id_usuario, fk_id_sala } = req.body;
-
-    try {
-      // Verificar se todos os parâmetros foram fornecidos
-      if (!datahora_inicio || !datahora_fim || !fk_id_usuario || !fk_id_sala) {
-        return res.status(400).json({ message: 'Todos os parâmetros são necessários' });
-      }
-
-      // SQL para verificar a disponibilidade da sala
-      const sql = `
-        SELECT COUNT(*) AS disponibilidade
-        FROM reserva
-        WHERE fk_id_sala = ? 
-        AND (
-          (datahora_inicio BETWEEN ? AND ?) 
-          OR (datahora_fim BETWEEN ? AND ?)
-          OR (? BETWEEN datahora_inicio AND datahora_fim)
-          OR (? BETWEEN datahora_inicio AND datahora_fim)
-        );
-      `;
-
-      // Executar a query para verificar a disponibilidade
-      connect.query(
-        sql,
-        [fk_id_sala, datahora_inicio, datahora_fim, datahora_inicio, datahora_fim, datahora_inicio, datahora_fim],
-        function (err, result) {
-          if (err) {
-            return res.status(500).json({ message: 'Erro no banco de dados', error: err });
-          }
-
-          // Se a contagem for 0, a sala está disponível
-          if (result[0].disponibilidade === 0) {
-            return res.json({ available: true, message: 'Sala disponível' });
-          } else {
-            return res.json({ available: false, message: 'Sala não disponível' });
-          }
-        }
-      );
-    } catch (error) {
-      console.error("Erro ao verificar a disponibilidade da sala:", error);
-      return res.status(500).json({ error: "Erro interno do servidor" });
-    }
-  }
 };

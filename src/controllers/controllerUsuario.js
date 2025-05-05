@@ -51,7 +51,9 @@ module.exports = class controllerUsuario {
           console.error(err);
           return res.status(500).json({ error: "Erro interno do Servidor" });
         }
-        return res.status(200).json({ message: "Lista de Usuários", users: results });
+        return res
+          .status(200)
+          .json({ message: "Lista de Usuários", users: results });
       });
     } catch (error) {
       console.error("Erro ao executar consulta:", error);
@@ -87,17 +89,18 @@ module.exports = class controllerUsuario {
           return res.status(401).json({ error: "Senha incorreta" });
         }
 
-        const token = jwt.sign({ id: user.id_usuario }, process.env.SECRET, {expiresIn: "1h",}
-        );
+        const token = jwt.sign({ id: user.id_usuario }, process.env.SECRET, {
+          expiresIn: "1h",
+        });
 
         //remove um atributo de objeto(o que é o delete)
         delete user.senha;
 
         return res.status(200).json({
-          message:"Login bem-sucedido",
+          message: "Login bem-sucedido",
           user,
-          token
-        })
+          token,
+        });
       });
     } catch (error) {
       console.error("Erro ao executar a consulta:", error);
@@ -126,14 +129,18 @@ module.exports = class controllerUsuario {
         if (err) {
           console.error(err);
           if (err.code === "ER_DUP_ENTRY") {
-            return res.status(400).json({ error: "Email já cadastrado por outro usuário" });
+            return res
+              .status(400)
+              .json({ error: "Email já cadastrado por outro usuário" });
           }
           return res.status(500).json({ error: "Erro interno do servidor" });
         }
         if (results.affectedRows === 0) {
           return res.status(404).json({ error: "Usuário não encontrado" });
         }
-        return res.status(200).json({ message: "Usuário atualizado com sucesso" });
+        return res
+          .status(200)
+          .json({ message: "Usuário atualizado com sucesso" });
       });
     } catch (error) {
       console.error("Erro ao executar consulta", error);
@@ -155,7 +162,9 @@ module.exports = class controllerUsuario {
         if (results.affectedRows === 0) {
           return res.status(404).json({ error: "Usuário não encontrado" });
         }
-        return res.status(200).json({ message: "Usuário excluído com sucesso" });
+        return res
+          .status(200)
+          .json({ message: "Usuário excluído com sucesso" });
       });
     } catch (error) {
       console.error(error);

@@ -3,12 +3,18 @@ const validateReserva = require("../services/validateReserva");
 
 module.exports = class controllerReserva {
   // CREATE RESERVA
-  static async  createReservas(req, res) {
+  static async createReservas(req, res) {
     // Corpos da requisição
     const { fk_id_usuario, fk_id_sala, datahora_inicio, datahora_fim } =
       req.body;
 
-    console.log("Body: ", fk_id_usuario, fk_id_sala, datahora_inicio, datahora_fim);
+    console.log(
+      "Body: ",
+      fk_id_usuario,
+      fk_id_sala,
+      datahora_inicio,
+      datahora_fim
+    );
 
     const validationError = validateReserva(req.body);
     if (validationError) {
@@ -122,5 +128,103 @@ module.exports = class controllerReserva {
       }
       return res.status(200).json({ message: "Reserva excluída com sucesso" });
     });
+  }
+  static getAllReservasPorSala(req, res) {
+    const idSala = req.params.id_sala; // Obtendo o ID da sala a partir dos parâmetros da URL
+
+    if (!idSala) {
+      return res.status(400).json({ error: "ID da sala não fornecido" });
+    }
+
+    const query = `SELECT * FROM reserva WHERE fk_id_sala = ?`;
+
+    connect.query(query, [idSala], (err, results) => {
+      if (err) {
+        console.error("Erro ao consultar a reserva:", err);
+        return res.status(500).json({ error: "Erro Interno do Servidor" });
+      }
+
+      // Se não houver nenhuma reserva, retornar 404
+      if (results.length === 0) {
+        return res
+          .status(404)
+          .json({
+            message: `Nenhuma reserva encontrada para a sala de ID ${idSala}`,
+          });
+      }
+
+      return res.status(200).json({
+        message: `Reservas para a sala de ID ${idSala}`,
+        reservas: results,
+      });
+    });
+  }
+
+  static async getHorariosReservados(req, res) {
+    //const { datahora_inicio, datahora_fim, fk_id_usuario, fk_id_sala } = req.query;
+    const { datahora_inicio, datahora_fim, fk_id_sala } = req.body;
+
+    console.log(
+      "Valores recebidos: ",
+      datahora_inicio,
+      datahora_fim,
+      fk_id_sala
+    );
+
+    try {
+      // Verificar se todos os parâmetros foram fornecidos
+      if (!datahora_inicio || !datahora_fim || !fk_id_sala) {
+        return res
+          .status(400)
+          .json({ message: "Todos os campos devem ser preenchidos" });
+      }
+
+      // SQL para verificar a disponibilidade da sala
+      const sql = `
+      SELECT COUNT(*) AS disponibilidade
+      FROM reserva
+      WHERE fk_id_sala = ? 
+      AND (
+        (datahora_inicio BETWEEN ? AND ?) 
+        OR (datahora_fim BETWEEN ? AND ?)
+        OR (? BETWEEN datahora_inicio AND datahora_fim)
+        OR (? BETWEEN datahora_inicio AND datahora_fim)
+      );
+    `;
+
+      // Executar a query para verificar a disponibilidade
+      connect.query(
+        sql,
+        [
+          fk_id_sala,
+          datahora_inicio,
+          datahora_fim,
+          datahora_inicio,
+          datahora_fim,
+          datahora_inicio,
+          datahora_fim,
+        ],
+        function (err, result) {
+          if (err) {
+            return res
+              .status(500)
+              .json({ message: "Erro no banco de dados", error: err });
+          }
+
+          // Se a contagem for 0, a sala está disponível
+          if (result[0].disponibilidade === 0) {
+            return res.json({ available: true, message: "Sala disponível" });
+          } else {
+            return res.json({
+              available: false,
+              message: "Sala não disponível",
+            });
+          }
+        }
+      );
+    } catch (error) {
+      console.error("Erro ao verificar a disponibilidade da sala:", error);
+      return res.status(500).json({ error: "Erro interno do servidor" });
+    }
   }
 };
