@@ -129,46 +129,12 @@ module.exports = class controllerReserva {
       return res.status(200).json({ message: "Reserva excluída com sucesso" });
     });
   }
-  static getAllReservasPorSala(req, res) {
-    const idSala = req.params.id_sala; // Obtendo o ID da sala a partir dos parâmetros da URL
-
-    if (!idSala) {
-      return res.status(400).json({ error: "ID da sala não fornecido" });
-    }
-
-    const query = `SELECT * FROM reserva WHERE fk_id_sala = ?`;
-
-    connect.query(query, [idSala], (err, results) => {
-      if (err) {
-        console.error("Erro ao consultar a reserva:", err);
-        return res.status(500).json({ error: "Erro Interno do Servidor" });
-      }
-
-      // Se não houver nenhuma reserva, retornar 404
-      if (results.length === 0) {
-        return res
-          .status(404)
-          .json({
-            message: `Nenhuma reserva encontrada para a sala de ID ${idSala}`,
-          });
-      }
-
-      return res.status(200).json({
-        message: `Reservas para a sala de ID ${idSala}`,
-        reservas: results,
-      });
-    });
-  }
 
   static async getHorariosReservados(req, res) {
     //const { datahora_inicio, datahora_fim, fk_id_usuario, fk_id_sala } = req.query;
     const { datahora_inicio, datahora_fim, fk_id_sala } = req.body;
 
-    console.log(
-      "Valores recebidos: ",
-      datahora_inicio,
-      datahora_fim,
-      fk_id_sala
+    console.log("Valores recebidos: ",datahora_inicio,datahora_fim,fk_id_sala
     );
 
     try {
@@ -181,8 +147,8 @@ module.exports = class controllerReserva {
 
       // SQL para verificar a disponibilidade da sala
       const sql = `
-      SELECT COUNT(*) AS disponibilidade
-      FROM reserva
+      select count(*) as disponibilidade
+      from reserva
       WHERE fk_id_sala = ? 
       AND (
         (datahora_inicio BETWEEN ? AND ?) 
