@@ -24,12 +24,9 @@ router.post("/reserva", reservaController.createReservas);
 router.get("/reservas",reservaController.getAllReservas); 
 router.delete("/reserva/:id_reserva", reservaController.deleteReserva);
 router.get('/reservas/:id_sala', reservaController.getAllReservasPorSala);
-// router.get('/disponibilidade', reservaController.getHorariosReservados);
-
-
 router.post('/disponibilidade', reservaController.getHorariosReservados);
 
 
-// http://10.89.240.89:5000/projeto_senai/
+// http://10.89.240.84:5000/projeto_senai/
 
 module.exports = router;

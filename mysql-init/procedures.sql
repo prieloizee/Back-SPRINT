@@ -10,5 +10,4 @@ end $$
 
 delimiter ;
 
-sele cancelar_reserva(2);
-
+call cancelar_reserva(4);
