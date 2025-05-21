@@ -10,6 +10,7 @@ router.get('/usuarios',verifyJWT, controllerCadastro.getAllUsers);
 router.put('/usuario',verifyJWT, controllerCadastro.updateUser);
 router.delete('/usuario/:id',verifyJWT, controllerCadastro.deleteUser);
 router.post('/login', controllerCadastro.loginUser);
+router.get('/usuario/:id', controllerCadastro.getUserById);
 
 //Rotas salas
 router.post('/sala',verifyJWT, controllerSala.createSala);

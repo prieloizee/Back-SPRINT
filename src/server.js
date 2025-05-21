@@ -10,6 +10,6 @@ const corsOpitions = {
 
 // Aplicando o middleware CORS no app
 app.use(cors(corsOpitions));
-app.listen(5000); 
+app.listen(3000); 
 
-// http://10.89.240.68:5000/projeto_senai/
+// http://10.89.240.84:3000/projeto_senai/

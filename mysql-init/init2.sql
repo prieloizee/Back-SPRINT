@@ -1,11 +1,10 @@
+CREATE DATABASE  IF NOT EXISTS `projeto_senai` /*!40100 DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci */ /*!80016 DEFAULT ENCRYPTION='N' */;
+USE `projeto_senai`;
 -- MySQL dump 10.13  Distrib 8.0.36, for Win64 (x86_64)
 --
 -- Host: localhost    Database: projeto_senai
 -- ------------------------------------------------------
 -- Server version	8.0.36
-create database projeto_senai;
-
-use projeto_senai;
 
 /*!40101 SET @OLD_CHARACTER_SET_CLIENT=@@CHARACTER_SET_CLIENT */;
 /*!40101 SET @OLD_CHARACTER_SET_RESULTS=@@CHARACTER_SET_RESULTS */;
@@ -17,6 +16,32 @@ use projeto_senai;
 /*!40014 SET @OLD_FOREIGN_KEY_CHECKS=@@FOREIGN_KEY_CHECKS, FOREIGN_KEY_CHECKS=0 */;
 /*!40101 SET @OLD_SQL_MODE=@@SQL_MODE, SQL_MODE='NO_AUTO_VALUE_ON_ZERO' */;
 /*!40111 SET @OLD_SQL_NOTES=@@SQL_NOTES, SQL_NOTES=0 */;
+
+--
+-- Table structure for table `cancelamentos_reservas`
+--
+
+DROP TABLE IF EXISTS `cancelamentos_reservas`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!50503 SET character_set_client = utf8mb4 */;
+CREATE TABLE `cancelamentos_reservas` (
+  `id_cancela` int NOT NULL AUTO_INCREMENT,
+  `id_reserva` int DEFAULT NULL,
+  `id_usuario` int DEFAULT NULL,
+  `data_cancelamento` datetime DEFAULT NULL,
+  PRIMARY KEY (`id_cancela`)
+) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `cancelamentos_reservas`
+--
+
+LOCK TABLES `cancelamentos_reservas` WRITE;
+/*!40000 ALTER TABLE `cancelamentos_reservas` DISABLE KEYS */;
+INSERT INTO `cancelamentos_reservas` VALUES (1,2,1,'2025-05-21 13:13:10');
+/*!40000 ALTER TABLE `cancelamentos_reservas` ENABLE KEYS */;
+UNLOCK TABLES;
 
 --
 -- Table structure for table `reserva`
@@ -36,7 +61,7 @@ CREATE TABLE `reserva` (
   KEY `fk_id_sala` (`fk_id_sala`),
   CONSTRAINT `reserva_ibfk_1` FOREIGN KEY (`fk_id_usuario`) REFERENCES `usuario` (`id_usuario`),
   CONSTRAINT `reserva_ibfk_2` FOREIGN KEY (`fk_id_sala`) REFERENCES `sala` (`id_sala`)
-) ENGINE=InnoDB AUTO_INCREMENT=4 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=5 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -45,9 +70,27 @@ CREATE TABLE `reserva` (
 
 LOCK TABLES `reserva` WRITE;
 /*!40000 ALTER TABLE `reserva` DISABLE KEYS */;
-INSERT INTO `reserva` VALUES (2,'2025-03-27 11:00:00','2025-03-27 12:00:00',1,57),(3,'2025-03-28 11:00:00','2025-03-28 12:00:00',1,55);
+INSERT INTO `reserva` VALUES (3,'2025-03-28 11:00:00','2025-03-28 12:00:00',1,55),(4,'2025-05-21 14:43:00','2025-05-21 15:43:00',1,46);
 /*!40000 ALTER TABLE `reserva` ENABLE KEYS */;
 UNLOCK TABLES;
+/*!50003 SET @saved_cs_client      = @@character_set_client */ ;
+/*!50003 SET @saved_cs_results     = @@character_set_results */ ;
+/*!50003 SET @saved_col_connection = @@collation_connection */ ;
+/*!50003 SET character_set_client  = utf8mb4 */ ;
+/*!50003 SET character_set_results = utf8mb4 */ ;
+/*!50003 SET collation_connection  = utf8mb4_0900_ai_ci */ ;
+/*!50003 SET @saved_sql_mode       = @@sql_mode */ ;
+/*!50003 SET sql_mode              = 'ONLY_FULL_GROUP_BY,STRICT_TRANS_TABLES,NO_ZERO_IN_DATE,NO_ZERO_DATE,ERROR_FOR_DIVISION_BY_ZERO,NO_ENGINE_SUBSTITUTION' */ ;
+DELIMITER ;;
+/*!50003 CREATE*/ /*!50017 DEFINER=`alunods`@`%`*/ /*!50003 TRIGGER `registrar_cancelamento` AFTER DELETE ON `reserva` FOR EACH ROW BEGIN
+    INSERT INTO cancelamentos_reservas (id_reserva, id_usuario, data_cancelamento)
+    VALUES (OLD.id_reserva, OLD.fk_id_usuario, NOW());
+END */;;
+DELIMITER ;
+/*!50003 SET sql_mode              = @saved_sql_mode */ ;
+/*!50003 SET character_set_client  = @saved_cs_client */ ;
+/*!50003 SET character_set_results = @saved_cs_results */ ;
+/*!50003 SET collation_connection  = @saved_col_connection */ ;
 
 --
 -- Table structure for table `reserva_feita`
@@ -261,4 +304,4 @@ DELIMITER ;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2025-04-28 16:08:08
+-- Dump completed on 2025-05-21 15:59:58
