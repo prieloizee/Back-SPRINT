@@ -2,7 +2,7 @@ CREATE DATABASE  IF NOT EXISTS `projeto_senai` /*!40100 DEFAULT CHARACTER SET ut
 USE `projeto_senai`;
 -- MySQL dump 10.13  Distrib 8.0.36, for Win64 (x86_64)
 --
--- Host: localhost    Database: projeto_senai
+-- Host: db   Database: projeto_senai
 -- ------------------------------------------------------
 -- Server version	8.0.36
 
