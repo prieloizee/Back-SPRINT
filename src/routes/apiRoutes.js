@@ -10,7 +10,7 @@ router.get('/usuarios',verifyJWT, controllerCadastro.getAllUsers);
 router.put('/usuario',verifyJWT, controllerCadastro.updateUser);
 router.delete('/usuario/:id',verifyJWT, controllerCadastro.deleteUser);
 router.post('/login', controllerCadastro.loginUser);
-router.get('/usuario/:id', controllerCadastro.getUserById);
+
 
 //Rotas salas
 router.post('/sala',verifyJWT, controllerSala.createSala);
@@ -26,6 +26,7 @@ router.get("/reservas",reservaController.getAllReservas);
 router.delete("/reserva/:id_reserva", reservaController.deleteReserva);
 router.get('/reservas/:id_sala', reservaController.getAllReservasPorSala);
 router.post('/disponibilidade', reservaController.getHorariosReservados);
+router.get("/reservas/usuario/:id_usuario", reservaController.getReservasPorUsuario);
 
 
 // http://10.89.240.84:5000/projeto_senai/

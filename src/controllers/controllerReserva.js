@@ -224,4 +224,26 @@ module.exports = class controllerReserva {
       return res.status(500).json({ error: "Erro interno do servidor" });
     }
   }
-};
+
+
+  static async getReservasPorUsuario(req, res) {
+    const id_usuario = req.params.id_usuario;
+    console.log("ID do usuário recebido:", id_usuario);
+
+    const query = `SELECT * FROM reserva WHERE fk_id_usuario = ?`;
+    const values = [id_usuario];
+  
+    try {
+      const [results] = await connect.promise().query(query, values);
+  
+      if (results.length === 0) {
+        return res.status(404).json({ error: "Nenhuma reserva encontrada para esse usuário" });
+      }
+  
+      return res.status(200).json({ reservas: results });
+    } catch (error) {
+      console.error("Erro ao executar consulta:", error);
+      return res.status(500).json({ error: "Erro interno do servidor" });
+    }
+  }
+};  

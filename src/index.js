@@ -3,6 +3,7 @@ const cors = require("cors");
 const testConnect = require("./db/testConnect");
 
 
+
 class AppController {
   //Define uma classe para organizar a logica de aplicação
   constructor() {

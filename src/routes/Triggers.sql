@@ -1,11 +1,3 @@
-CREATE TABLE cancelamentos_reservas (
-    id_cancelamento INT AUTO_INCREMENT PRIMARY KEY,
-    id_reserva INT,
-    id_usuario INT,
-    id_sala INT,
-    data_cancelamento DATETIME
-);
-
 -- registra o cancelamento de reserva
 
 DELIMITER $$
@@ -20,6 +12,6 @@ END $$
 
 DELIMITER ;
 
---  DELETE FROM reserva WHERE id_reserva = 2;
+--  DELETE FROM reserva WHERE id_reserva = 4;
 
---  SELECT * FROM cancelamentos_reservas WHERE id_reserva = 2;
+--  SELECT * FROM cancelamentos_reservas WHERE id_reserva = 3;

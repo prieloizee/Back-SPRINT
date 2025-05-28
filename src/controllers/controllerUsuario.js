@@ -171,30 +171,4 @@ module.exports = class controllerUsuario {
       return res.status(500).json({ error: "Erro interno do servidor" });
     }
   }
-
-  static async getUserById(req, res) {
-    const id_usuario = req.params.id;
-    const query = `SELECT * FROM usuario WHERE id_usuario = ?`;
-    const values = [id_usuario];
-  
-    try {
-      connect.query(query, values, function (err, results) {
-        if (err) {
-          console.error("Erro ao executar consulta:", err);
-          return res.status(500).json({ error: "Erro interno do servidor" });
-        }
-  
-        if (results.length === 0) {
-          return res.status(404).json({ error: "Usuário não encontrado" });
-        }
-  
-        const user = results[0];
-  
-        return res.status(200).json({ message: "Usuário encontrado", user });
-      });
-    } catch (error) {
-      console.error("Erro ao executar consulta:", error);
-      return res.status(500).json({ error: "Erro interno do servidor" });
-    }
-  }
 };
