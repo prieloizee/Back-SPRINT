@@ -32,6 +32,16 @@ module.exports = class controllerReserva {
         return res.status(404).json({ error: "Usuário não encontrado" });
       }
 
+      const usuario = resultadosU[0];
+
+console.log("Status do usuário:", usuario.status);
+if (usuario.status === 'bloqueado') {
+  return res.status(403).json({ error: "Usuário bloqueado não pode fazer reservas." });
+}
+
+
+
+
       // Verifica se a sala existe
       const querySala = `SELECT * FROM sala WHERE id_sala = ?`;
       const valuesSala = [fk_id_sala];
