@@ -14,4 +14,4 @@ DELIMITER ;
 
 --  DELETE FROM reserva WHERE id_reserva = 4;
 
---  SELECT * FROM cancelamentos_reservas WHERE id_reserva = 3;
+--  SELECT * FROM cancelamentos_reservas WHERE id_reserva = 1;
