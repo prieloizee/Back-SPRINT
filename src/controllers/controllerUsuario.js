@@ -61,6 +61,31 @@ module.exports = class controllerUsuario {
     }
   }
 
+  static async getUserById(req, res) {
+  const id_usuario = req.params.id;
+
+  const query = `SELECT id_usuario, nome, email, cpf, status FROM usuario WHERE id_usuario = ?`;
+
+  try {
+    connect.query(query, [id_usuario], (err, results) => {
+      if (err) {
+        console.error("Erro ao buscar usuário por ID:", err);
+        return res.status(500).json({ error: "Erro interno do servidor" });
+      }
+
+      if (results.length === 0) {
+        return res.status(404).json({ error: "Usuário não encontrado" });
+      }
+
+      return res.status(200).json({ user: results[0] });
+    });
+  } catch (error) {
+    console.error("Erro ao buscar usuário:", error);
+    return res.status(500).json({ error: "Erro interno do servidor" });
+  }
+}
+
+
   static async loginUser(req, res) {
     const { email, senha } = req.body;
 

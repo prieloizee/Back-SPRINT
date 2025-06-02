@@ -7,6 +7,7 @@ const verifyJWT = require('../services/verifyJWT');
 //Rotas Usuario
 router.post('/usuario', controllerCadastro.createUser);
 router.get('/usuarios',verifyJWT, controllerCadastro.getAllUsers);
+router.get("/usuario/:id", controllerCadastro.getUserById);
 router.put('/usuario',verifyJWT, controllerCadastro.updateUser);
 router.delete('/usuario/:id',verifyJWT, controllerCadastro.deleteUser);
 router.post('/login', controllerCadastro.loginUser);
