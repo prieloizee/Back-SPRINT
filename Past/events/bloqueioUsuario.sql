@@ -1,7 +1,7 @@
 DELIMITER $$
 
 CREATE EVENT bloquear_usuarios_abusivos
-ON SCHEDULE EVERY 1 MONTH
+ON SCHEDULE EVERY 1 DAY
 DO
 BEGIN
   UPDATE usuario

@@ -35,6 +35,7 @@ module.exports = class controllerUsuario {
           }
         }
         return res.status(201).json({ message: "Usuário criado com sucesso" });
+        
       });
     } catch (error) {
       console.error(error);
@@ -176,6 +177,7 @@ return res.status(500).json({ error: "Erro interno do servidor" });
 
   static async deleteUser(req, res) {
     const id_usuario = req.params.id;
+
     const query = `DELETE FROM usuario WHERE id_usuario = ?`;
     const values = [id_usuario];
 

@@ -1,6 +1,6 @@
 DELIMITER $$
 
-CREATE TRIGGER verifica_status_usuario_before_insert
+CREATE TRIGGER verifica_status_usuario
 BEFORE INSERT ON reserva
 FOR EACH ROW
 BEGIN

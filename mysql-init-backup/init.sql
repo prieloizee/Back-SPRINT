@@ -30,7 +30,7 @@ CREATE TABLE `cancelamentos_reservas` (
   `id_usuario` int DEFAULT NULL,
   `data_cancelamento` datetime DEFAULT NULL,
   PRIMARY KEY (`id_cancela`)
-) ENGINE=InnoDB AUTO_INCREMENT=9 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=8 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -39,7 +39,7 @@ CREATE TABLE `cancelamentos_reservas` (
 
 LOCK TABLES `cancelamentos_reservas` WRITE;
 /*!40000 ALTER TABLE `cancelamentos_reservas` DISABLE KEYS */;
-INSERT INTO `cancelamentos_reservas` VALUES (1,2,1,'2025-05-21 13:13:10'),(2,1001,1,'2025-06-02 13:51:58'),(3,1002,1,'2025-06-02 13:51:58'),(4,1003,1,'2025-06-02 13:51:58'),(5,1004,1,'2025-06-02 13:51:58'),(6,1005,1,'2025-06-02 13:51:58'),(7,1006,1,'2025-06-02 13:51:58'),(8,4,1,'2025-06-04 08:29:14');
+INSERT INTO `cancelamentos_reservas` VALUES (1,2,1,'2025-05-21 13:13:10'),(2,1001,1,'2025-06-02 13:51:58'),(3,1002,1,'2025-06-02 13:51:58'),(4,1003,1,'2025-06-02 13:51:58'),(5,1004,1,'2025-06-02 13:51:58'),(6,1005,1,'2025-06-02 13:51:58'),(7,1006,1,'2025-06-02 13:51:58');
 /*!40000 ALTER TABLE `cancelamentos_reservas` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -59,7 +59,7 @@ CREATE TABLE `reserva` (
   PRIMARY KEY (`id_reserva`),
   KEY `fk_id_usuario` (`fk_id_usuario`),
   KEY `fk_id_sala` (`fk_id_sala`),
-  CONSTRAINT `fk_id_usuario_reserva` FOREIGN KEY (`fk_id_usuario`) REFERENCES `usuario` (`id_usuario`) ON DELETE CASCADE,
+  CONSTRAINT `reserva_ibfk_1` FOREIGN KEY (`fk_id_usuario`) REFERENCES `usuario` (`id_usuario`),
   CONSTRAINT `reserva_ibfk_2` FOREIGN KEY (`fk_id_sala`) REFERENCES `sala` (`id_sala`)
 ) ENGINE=InnoDB AUTO_INCREMENT=5 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
@@ -70,7 +70,7 @@ CREATE TABLE `reserva` (
 
 LOCK TABLES `reserva` WRITE;
 /*!40000 ALTER TABLE `reserva` DISABLE KEYS */;
-INSERT INTO `reserva` VALUES (3,'2025-03-28 11:00:00','2025-03-28 12:00:00',1,55);
+INSERT INTO `reserva` VALUES (3,'2025-03-28 11:00:00','2025-03-28 12:00:00',1,55),(4,'2025-05-21 14:43:00','2025-05-21 15:43:00',1,46);
 /*!40000 ALTER TABLE `reserva` ENABLE KEYS */;
 UNLOCK TABLES;
 /*!50003 SET @saved_cs_client      = @@character_set_client */ ;
@@ -82,7 +82,7 @@ UNLOCK TABLES;
 /*!50003 SET @saved_sql_mode       = @@sql_mode */ ;
 /*!50003 SET sql_mode              = 'ONLY_FULL_GROUP_BY,STRICT_TRANS_TABLES,NO_ZERO_IN_DATE,NO_ZERO_DATE,ERROR_FOR_DIVISION_BY_ZERO,NO_ENGINE_SUBSTITUTION' */ ;
 DELIMITER ;;
-/*!50003 CREATE*/ /*!50003 TRIGGER `verifica_status_usuario_before_insert` BEFORE INSERT ON `reserva` FOR EACH ROW BEGIN
+/*!50003 CREATE*/ /*!50017 DEFINER=`malu`@`%`*/ /*!50003 TRIGGER `verifica_status_usuario_before_insert` BEFORE INSERT ON `reserva` FOR EACH ROW BEGIN
   DECLARE user_status VARCHAR(10);
 
   SELECT status INTO user_status FROM usuario WHERE id_usuario = NEW.fk_id_usuario;
@@ -105,7 +105,7 @@ DELIMITER ;
 /*!50003 SET @saved_sql_mode       = @@sql_mode */ ;
 /*!50003 SET sql_mode              = 'ONLY_FULL_GROUP_BY,STRICT_TRANS_TABLES,NO_ZERO_IN_DATE,NO_ZERO_DATE,ERROR_FOR_DIVISION_BY_ZERO,NO_ENGINE_SUBSTITUTION' */ ;
 DELIMITER ;;
-/*!50003 CREATE*/ /*!50003 TRIGGER `registrar_cancelamento` AFTER DELETE ON `reserva` FOR EACH ROW BEGIN
+/*!50003 CREATE*/ /*!50017 DEFINER=`root`@`%`*/ /*!50003 TRIGGER `registrar_cancelamento` AFTER DELETE ON `reserva` FOR EACH ROW BEGIN
     INSERT INTO cancelamentos_reservas (id_reserva, id_usuario, data_cancelamento)
     VALUES (OLD.id_reserva, OLD.fk_id_usuario, NOW());
 END */;;
@@ -214,7 +214,7 @@ DELIMITER ;;
 /*!50003 SET sql_mode              = 'ONLY_FULL_GROUP_BY,STRICT_TRANS_TABLES,NO_ZERO_IN_DATE,NO_ZERO_DATE,ERROR_FOR_DIVISION_BY_ZERO,NO_ENGINE_SUBSTITUTION' */ ;;
 /*!50003 SET @saved_time_zone      = @@time_zone */ ;;
 /*!50003 SET time_zone             = 'SYSTEM' */ ;;
-/*!50106 CREATE*/  /*!50106 EVENT `bloquear_usuarios_abusivos` ON SCHEDULE EVERY 1 DAY STARTS '2025-06-04 08:07:33' ON COMPLETION NOT PRESERVE ENABLE DO BEGIN
+/*!50106 CREATE*/ /*!50117 DEFINER=`malu`@`%`*/ /*!50106 EVENT `bloquear_usuarios_abusivos` ON SCHEDULE EVERY 1 MONTH STARTS '2025-06-02 13:50:33' ON COMPLETION NOT PRESERVE ENABLE DO BEGIN
   UPDATE usuario
   SET status = 'bloqueado'
   WHERE id_usuario IN (
@@ -247,7 +247,7 @@ DELIMITER ;
 /*!50003 SET @saved_sql_mode       = @@sql_mode */ ;
 /*!50003 SET sql_mode              = 'ONLY_FULL_GROUP_BY,STRICT_TRANS_TABLES,NO_ZERO_IN_DATE,NO_ZERO_DATE,ERROR_FOR_DIVISION_BY_ZERO,NO_ENGINE_SUBSTITUTION' */ ;
 DELIMITER ;;
-CREATE FUNCTION `total_reservas_usuario`(id_usuario int) RETURNS int
+CREATE DEFINER=`priscila`@`%` FUNCTION `total_reservas_usuario`(id_usuario int) RETURNS int
     READS SQL DATA
 begin
     declare total int;
@@ -273,7 +273,7 @@ DELIMITER ;
 /*!50003 SET @saved_sql_mode       = @@sql_mode */ ;
 /*!50003 SET sql_mode              = 'ONLY_FULL_GROUP_BY,STRICT_TRANS_TABLES,NO_ZERO_IN_DATE,NO_ZERO_DATE,ERROR_FOR_DIVISION_BY_ZERO,NO_ENGINE_SUBSTITUTION' */ ;
 DELIMITER ;;
-CREATE FUNCTION `verificar_disponibilidade_sala`(
+CREATE DEFINER=`priscila`@`%` FUNCTION `verificar_disponibilidade_sala`(
     p_id_sala INT,
     p_datahora_inicio DATETIME,
     p_datahora_fim DATETIME
@@ -308,7 +308,7 @@ DELIMITER ;
 /*!50003 SET @saved_sql_mode       = @@sql_mode */ ;
 /*!50003 SET sql_mode              = 'ONLY_FULL_GROUP_BY,STRICT_TRANS_TABLES,NO_ZERO_IN_DATE,NO_ZERO_DATE,ERROR_FOR_DIVISION_BY_ZERO,NO_ENGINE_SUBSTITUTION' */ ;
 DELIMITER ;;
-CREATE ` PROCEDURE `cancelar_reserva`(
+CREATE DEFINER=`priscila`@`%` PROCEDURE `cancelar_reserva`(
     IN p_id_reserva INT
 )
 BEGIN
@@ -329,7 +329,7 @@ DELIMITER ;
 /*!50003 SET @saved_sql_mode       = @@sql_mode */ ;
 /*!50003 SET sql_mode              = 'ONLY_FULL_GROUP_BY,STRICT_TRANS_TABLES,NO_ZERO_IN_DATE,NO_ZERO_DATE,ERROR_FOR_DIVISION_BY_ZERO,NO_ENGINE_SUBSTITUTION' */ ;
 DELIMITER ;;
-CREATE PROCEDURE `registrar_reserva`(
+CREATE DEFINER=`priscila`@`%` PROCEDURE `registrar_reserva`(
     in p_id_usuario int,
     in p_id_sala int,
     in p_datahora_inicio datetime,
@@ -360,4 +360,4 @@ DELIMITER ;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2025-06-04 10:54:59
+-- Dump completed on 2025-06-02 16:10:00

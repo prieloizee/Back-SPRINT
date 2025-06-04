@@ -34,13 +34,12 @@ module.exports = class controllerReserva {
 
       const usuario = resultadosU[0];
 
-console.log("Status do usuário:", usuario.status);
-if (usuario.status === 'bloqueado') {
-  return res.status(403).json({ error: "Usuário bloqueado não pode fazer reservas." });
-}
-
-
-
+      console.log("Status do usuário:", usuario.status);
+      if (usuario.status === "bloqueado") {
+        return res
+          .status(403)
+          .json({ error: "Usuário bloqueado não pode fazer reservas." });
+      }
 
       // Verifica se a sala existe
       const querySala = `SELECT * FROM sala WHERE id_sala = ?`;
@@ -120,25 +119,60 @@ if (usuario.status === 'bloqueado') {
   }
 
   // DELETE
-  static deleteReserva(req, res) {
-    const reservaId = req.params.id_reserva;
-    const query = `DELETE FROM reserva WHERE id_reserva = ?`;
-    const values = [reservaId];
+ // DELETE
+static async deleteReserva(req, res) {
+  const reservaId = req.params.id_reserva;
 
-    // Deleta a reserva com o ID fornecido
-    connect.query(query, values, (err, results) => {
-      if (err) {
-        console.error(err);
-        return res.status(500).json({ error: "Erro interno no servidor" });
-      }
+  try {
+    // Primeiro, pegamos a reserva para saber de qual usuário ela é
+    const [reservaResult] = await connect
+      .promise()
+      .query("SELECT fk_id_usuario FROM reserva WHERE id_reserva = ?", [reservaId]);
 
-      // Verifica se o reserva foi encontrado e excluído
-      if (results.affectedRows === 0) {
-        return res.status(404).json({ error: "Reserva não encontrada" });
-      }
-      return res.status(200).json({ message: "Reserva excluída com sucesso" });
-    });
+    if (reservaResult.length === 0) {
+      return res.status(404).json({ error: "Reserva não encontrada" });
+    }
+
+    const idUsuario = reservaResult[0].fk_id_usuario;
+
+    // Agora deletamos a reserva
+    const [deleteResult] = await connect
+      .promise()
+      .query("DELETE FROM reserva WHERE id_reserva = ?", [reservaId]);
+
+    if (deleteResult.affectedRows === 0) {
+      return res.status(404).json({ error: "Reserva não encontrada" });
+    }
+
+    // Contamos quantas reservas o usuário já cancelou (assumindo que deletou = cancelou)
+    const [historico] = await connect
+      .promise()
+      .query("SELECT COUNT(*) AS total FROM reserva_historico_cancelamento WHERE fk_id_usuario = ?", [idUsuario]);
+
+    const totalCancelamentos = historico[0].total || 0;
+
+    // Adicionamos o cancelamento ao histórico (crie essa tabela se ainda não existir)
+    await connect
+      .promise()
+      .query("INSERT INTO reserva_historico_cancelamento (fk_id_usuario, id_reserva_cancelada) VALUES (?, ?)", [
+        idUsuario,
+        reservaId,
+      ]);
+
+    // Se o usuário tiver 6 ou mais cancelamentos, bloqueia
+    if (totalCancelamentos + 1 >= 6) {
+      await connect
+        .promise()
+        .query("UPDATE usuario SET status = 'bloqueado' WHERE id_usuario = ?", [idUsuario]);
+    }
+
+    return res.status(200).json({ message: "Reserva cancelada com sucesso" });
+  } catch (err) {
+    console.error("Erro ao cancelar reserva:", err);
+    return res.status(500).json({ error: "Erro interno no servidor" });
   }
+}
+
 
   static getAllReservasPorSala(req, res) {
     const idSala = req.params.id_sala; // Obtendo o ID da sala a partir dos parâmetros da URL
@@ -157,11 +191,9 @@ if (usuario.status === 'bloqueado') {
 
       // Se não houver nenhuma reserva, retornar 404
       if (results.length === 0) {
-        return res
-          .status(404)
-          .json({
-            message: `Nenhuma reserva encontrada para a sala de ID ${idSala}`,
-          });
+        return res.status(404).json({
+          message: `Nenhuma reserva encontrada para a sala de ID ${idSala}`,
+        });
       }
 
       return res.status(200).json({
@@ -175,7 +207,11 @@ if (usuario.status === 'bloqueado') {
     //const { datahora_inicio, datahora_fim, fk_id_usuario, fk_id_sala } = req.query;
     const { datahora_inicio, datahora_fim, fk_id_sala } = req.body;
 
-    console.log("Valores recebidos: ",datahora_inicio,datahora_fim,fk_id_sala
+    console.log(
+      "Valores recebidos: ",
+      datahora_inicio,
+      datahora_fim,
+      fk_id_sala
     );
 
     try {
@@ -235,25 +271,26 @@ if (usuario.status === 'bloqueado') {
     }
   }
 
-
   static async getReservasPorUsuario(req, res) {
     const id_usuario = req.params.id_usuario;
     console.log("ID do usuário recebido:", id_usuario);
 
     const query = `SELECT * FROM reserva WHERE fk_id_usuario = ?`;
     const values = [id_usuario];
-  
+
     try {
       const [results] = await connect.promise().query(query, values);
-  
+
       if (results.length === 0) {
-        return res.status(404).json({ error: "Nenhuma reserva encontrada para esse usuário" });
+        return res
+          .status(404)
+          .json({ error: "Nenhuma reserva encontrada para esse usuário" });
       }
-  
+
       return res.status(200).json({ reservas: results });
     } catch (error) {
       console.error("Erro ao executar consulta:", error);
       return res.status(500).json({ error: "Erro interno do servidor" });
     }
   }
-};  
+};
