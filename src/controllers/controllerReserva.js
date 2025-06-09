@@ -124,7 +124,7 @@ static async deleteReserva(req, res) {
   const reservaId = req.params.id_reserva;
 
   try {
-    // Primeiro, pegamos a reserva para saber de qual usuário ela é
+    // Pegar o usuário dono da reserva
     const [reservaResult] = await connect
       .promise()
       .query("SELECT fk_id_usuario FROM reserva WHERE id_reserva = ?", [reservaId]);
@@ -135,7 +135,7 @@ static async deleteReserva(req, res) {
 
     const idUsuario = reservaResult[0].fk_id_usuario;
 
-    // Agora deletamos a reserva
+    // Deletar a reserva
     const [deleteResult] = await connect
       .promise()
       .query("DELETE FROM reserva WHERE id_reserva = ?", [reservaId]);
@@ -144,22 +144,22 @@ static async deleteReserva(req, res) {
       return res.status(404).json({ error: "Reserva não encontrada" });
     }
 
-    // Contamos quantas reservas o usuário já cancelou (assumindo que deletou = cancelou)
+    // Ver histórico de cancelamentos do usuário
     const [historico] = await connect
       .promise()
-      .query("SELECT COUNT(*) AS total FROM reserva_historico_cancelamento WHERE fk_id_usuario = ?", [idUsuario]);
+      .query("SELECT COUNT(*) AS total FROM cancelamentos_reservas WHERE id_usuario = ?", [idUsuario]);
 
     const totalCancelamentos = historico[0].total || 0;
 
-    // Adicionamos o cancelamento ao histórico (crie essa tabela se ainda não existir)
+    // Inserir no histórico de cancelamentos
     await connect
       .promise()
-      .query("INSERT INTO reserva_historico_cancelamento (fk_id_usuario, id_reserva_cancelada) VALUES (?, ?)", [
-        idUsuario,
-        reservaId,
-      ]);
+      .query(
+        "INSERT INTO cancelamentos_reservas (id_reserva, id_usuario, data_cancelamento) VALUES (?, ?, NOW())",
+        [reservaId, idUsuario]
+      );
 
-    // Se o usuário tiver 6 ou mais cancelamentos, bloqueia
+    // Bloquear usuário se tiver 6 ou mais cancelamentos
     if (totalCancelamentos + 1 >= 6) {
       await connect
         .promise()
@@ -168,7 +168,7 @@ static async deleteReserva(req, res) {
 
     return res.status(200).json({ message: "Reserva cancelada com sucesso" });
   } catch (err) {
-    console.error("Erro ao cancelar reserva:", err);
+    console.error("Erro ao cancelar reserva:", err.message, err);
     return res.status(500).json({ error: "Erro interno no servidor" });
   }
 }
@@ -293,4 +293,24 @@ static async deleteReserva(req, res) {
       return res.status(500).json({ error: "Erro interno do servidor" });
     }
   }
+
+static async cancelarReservaProcedure(req, res) {
+  const id_reserva = req.params.id_reserva; // antes: req.body
+
+  if (!id_reserva) {
+    return res.status(400).json({ error: "ID da reserva é obrigatório" });
+  }
+
+  try {
+    await connect.promise().query("CALL cancelar_reserva(?);", [id_reserva]);
+
+    return res.status(200).json({
+      message: "Reserva cancelada com sucesso via procedure",
+      id_reserva,
+    });
+  } catch (error) {
+    console.error("Erro ao cancelar reserva com procedure:", error);
+    return res.status(500).json({ error: "Erro ao cancelar reserva" });
+  }
+}
 };

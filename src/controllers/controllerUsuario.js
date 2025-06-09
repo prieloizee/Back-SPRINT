@@ -135,46 +135,6 @@ return res.status(500).json({ error: "Erro interno do servidor" });
     }
   }
 
-  static async updateUser(req, res) {
-    const { cpf, email, senha, nome, id_usuario } = req.body;
-
-    const validationError = validateUser(req.body);
-    if (validationError) {
-      return res.status(400).json(validationError);
-    }
-
-    try {
-      const cpfError = await validateCpf(cpf);
-      if (cpfError) {
-        return res.status(400).json(cpfError);
-      }
-
-      const query = `UPDATE usuario SET nome = ?, email = ?, senha = ?, cpf = ? WHERE id_usuario = ?`;
-      const values = [nome, email, senha, cpf, id_usuario];
-
-      connect.query(query, values, function (err, results) {
-        if (err) {
-          console.error(err);
-          if (err.code === "ER_DUP_ENTRY") {
-            return res
-              .status(400)
-              .json({ error: "Email já cadastrado por outro usuário" });
-          }
-          return res.status(500).json({ error: "Erro interno do servidor" });
-        }
-        if (results.affectedRows === 0) {
-          return res.status(404).json({ error: "Usuário não encontrado" });
-        }
-        return res
-          .status(200)
-          .json({ message: "Usuário atualizado com sucesso" });
-      });
-    } catch (error) {
-      console.error("Erro ao executar consulta", error);
-      return res.status(500).json({ error: "Erro interno do servidor" });
-    }
-  }
-
   static async deleteUser(req, res) {
     const id_usuario = req.params.id;
 
@@ -199,4 +159,64 @@ return res.status(500).json({ error: "Erro interno do servidor" });
       return res.status(500).json({ error: "Erro interno do servidor" });
     }
   }
+
+static async updateUserById(req, res) {
+  const { cpf, email, senha, nome } = req.body;
+  const id_usuario = req.params.id;
+
+  const validationError = validateUser({ cpf, email, senha, nome });
+  if (validationError) {
+    return res.status(400).json(validationError);
+  }
+
+  try {
+    const cpfError = await validateCpf(cpf);
+    if (cpfError) {
+      return res.status(400).json(cpfError);
+    }
+
+    const query = `UPDATE usuario SET nome = ?, email = ?, senha = ?, cpf = ? WHERE id_usuario = ?`;
+    const values = [nome, email, senha, cpf, id_usuario];
+
+    connect.query(query, values, function (err, results) {
+      if (err) {
+        console.error(err);
+        if (err.code === "ER_DUP_ENTRY") {
+          return res
+            .status(400)
+            .json({ error: "Email já cadastrado por outro usuário" });
+        }
+        return res.status(500).json({ error: "Erro interno do servidor" });
+      }
+      if (results.affectedRows === 0) {
+        return res.status(404).json({ error: "Usuário não encontrado" });
+      }
+      return res
+        .status(200)
+        .json({ message: "Usuário atualizado com sucesso" });
+    });
+  } catch (error) {
+    console.error("Erro ao executar consulta", error);
+    return res.status(500).json({ error: "Erro interno do servidor" });
+  }
+}
+
+static async getTotalReservas(req, res) {
+  const id_usuario = req.params.id_usuario;
+
+  const query = `SELECT total_reservas_usuario(?) AS total`;
+
+  try {
+    connect.query(query, [id_usuario], (err, results) => {
+      if (err) {
+        console.error(err);
+        return res.status(500).json({ error: 'Erro ao buscar total de reservas' });
+      }
+      return res.status(200).json({ totalReservas: results[0].total });
+    });
+  } catch (error) {
+    console.error(error);
+    return res.status(500).json({ error: 'Erro interno do servidor' });
+  }
+}
 };

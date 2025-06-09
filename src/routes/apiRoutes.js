@@ -8,9 +8,12 @@ const verifyJWT = require('../services/verifyJWT');
 router.post('/usuario', controllerCadastro.createUser);
 router.get('/usuarios',verifyJWT, controllerCadastro.getAllUsers);
 router.get("/usuario/:id", controllerCadastro.getUserById);
-router.put('/usuario',verifyJWT, controllerCadastro.updateUser);
 router.delete('/usuario/:id',verifyJWT, controllerCadastro.deleteUser);
 router.post('/login', controllerCadastro.loginUser);
+router.put('/usuario/:id', verifyJWT, controllerCadastro.updateUserById);
+router.get('/totalReservas/:id_usuario', controllerCadastro.getTotalReservas);
+
+
 
 
 //Rotas salas
@@ -28,6 +31,8 @@ router.delete("/reserva/:id_reserva", reservaController.deleteReserva);
 router.get('/reservas/:id_sala', reservaController.getAllReservasPorSala);
 router.post('/disponibilidade', reservaController.getHorariosReservados);
 router.get("/reservas/usuario/:id_usuario", reservaController.getReservasPorUsuario);
+router.post("/cancelarProcedure/:id_reserva", reservaController.cancelarReservaProcedure);
+
 
 
 // http://10.89.240.84:5000/projeto_senai/

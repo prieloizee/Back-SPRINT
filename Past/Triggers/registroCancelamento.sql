@@ -12,6 +12,6 @@ END $$
 
 DELIMITER ;
 
---  DELETE FROM reserva WHERE id_reserva = 4;
+--  DELETE FROM reserva WHERE id_reserva = 5;
 
---  SELECT * FROM cancelamentos_reservas WHERE id_reserva = 1;
+--  SELECT * FROM cancelamentos_reservas WHERE id_reserva = 5;
