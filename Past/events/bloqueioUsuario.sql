@@ -20,4 +20,4 @@ DELIMITER ;
 
 -- SELECT id_usuario, status FROM usuario WHERE id_usuario = 1;
 
--- UPDATE usuario   SET status = 'ativo'   WHERE id_usuario = 4;
+-- UPDATE usuario   SET status = 'ativo'   WHERE id_usuario = 21;

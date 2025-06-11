@@ -70,7 +70,7 @@ CREATE TABLE `reserva` (
 
 LOCK TABLES `reserva` WRITE;
 /*!40000 ALTER TABLE `reserva` DISABLE KEYS */;
-INSERT INTO `reserva` VALUES (1,'2025-03-28 11:00:00','2025-03-28 12:00:00',4,55),(3,'2025-03-28 11:00:00','2025-03-28 12:00:00',1,55);
+INSERT INTO `reserva` VALUES (3,'2025-03-28 11:00:00','2025-03-28 12:00:00',1,55);
 /*!40000 ALTER TABLE `reserva` ENABLE KEYS */;
 UNLOCK TABLES;
 /*!50003 SET @saved_cs_client      = @@character_set_client */ ;
@@ -82,7 +82,7 @@ UNLOCK TABLES;
 /*!50003 SET @saved_sql_mode       = @@sql_mode */ ;
 /*!50003 SET sql_mode              = 'ONLY_FULL_GROUP_BY,STRICT_TRANS_TABLES,NO_ZERO_IN_DATE,NO_ZERO_DATE,ERROR_FOR_DIVISION_BY_ZERO,NO_ENGINE_SUBSTITUTION' */ ;
 DELIMITER ;;
-/*!50003 CREATE*/ /*!50017 DEFINER=`malu`@`%`*/ /*!50003 TRIGGER `verifica_status_usuario` BEFORE INSERT ON `reserva` FOR EACH ROW BEGIN
+/*!50003 CREATE*/ /*!50003 TRIGGER `verifica_status_usuario_before_insert` BEFORE INSERT ON `reserva` FOR EACH ROW BEGIN
   DECLARE user_status VARCHAR(10);
 
   SELECT status INTO user_status FROM usuario WHERE id_usuario = NEW.fk_id_usuario;
@@ -105,7 +105,7 @@ DELIMITER ;
 /*!50003 SET @saved_sql_mode       = @@sql_mode */ ;
 /*!50003 SET sql_mode              = 'ONLY_FULL_GROUP_BY,STRICT_TRANS_TABLES,NO_ZERO_IN_DATE,NO_ZERO_DATE,ERROR_FOR_DIVISION_BY_ZERO,NO_ENGINE_SUBSTITUTION' */ ;
 DELIMITER ;;
-/*!50003 CREATE*/ /*!50017 DEFINER=`malu`@`%`*/ /*!50003 TRIGGER `registrar_cancelamento` AFTER DELETE ON `reserva` FOR EACH ROW BEGIN
+/*!50003 CREATE*/ /*!50003 TRIGGER `registrar_cancelamento` AFTER DELETE ON `reserva` FOR EACH ROW BEGIN
     INSERT INTO cancelamentos_reservas (id_reserva, id_usuario, data_cancelamento)
     VALUES (OLD.id_reserva, OLD.fk_id_usuario, NOW());
 END */;;
@@ -180,7 +180,7 @@ CREATE TABLE `usuario` (
   `nome` varchar(50) NOT NULL,
   `email` varchar(50) NOT NULL,
   `cpf` varchar(50) NOT NULL,
-  `senha` varchar(255) NOT NULL,
+  `senha` varchar(50) NOT NULL,
   `status` varchar(20) NOT NULL DEFAULT 'ativo',
   PRIMARY KEY (`id_usuario`),
   UNIQUE KEY `email` (`email`),
@@ -197,55 +197,12 @@ LOCK TABLES `usuario` WRITE;
 INSERT INTO `usuario` VALUES (1,'Gabriel','gabriel@teste.com','12321233567','senha123','bloqueado'),(2,'Livia','livia@teste.com','12321264567','senha123','ativo'),(3,'Malu','malu@teste.com','12321232567','senha123','ativo'),(4,'Priscila','priscila@teste.com','12121234567','senha123','ativo'),(5,'Ana Clara','ana@teste.com','12321239567','senha123','ativo'),(6,'Maria','maria@teste.com','12343456667','senha123','ativo'),(7,'Maria','maria1@teste.com','12343456677','senha123','ativo');
 /*!40000 ALTER TABLE `usuario` ENABLE KEYS */;
 UNLOCK TABLES;
-/*!50003 SET @saved_cs_client      = @@character_set_client */ ;
-/*!50003 SET @saved_cs_results     = @@character_set_results */ ;
-/*!50003 SET @saved_col_connection = @@collation_connection */ ;
-/*!50003 SET character_set_client  = utf8mb4 */ ;
-/*!50003 SET character_set_results = utf8mb4 */ ;
-/*!50003 SET collation_connection  = utf8mb4_0900_ai_ci */ ;
-/*!50003 SET @saved_sql_mode       = @@sql_mode */ ;
-/*!50003 SET sql_mode              = 'ONLY_FULL_GROUP_BY,STRICT_TRANS_TABLES,NO_ZERO_IN_DATE,NO_ZERO_DATE,ERROR_FOR_DIVISION_BY_ZERO,NO_ENGINE_SUBSTITUTION' */ ;
-DELIMITER ;;
-/*!50003 CREATE*/ /*!50017 DEFINER=`malu`@`%`*/ /*!50003 TRIGGER `usuarios_deletados` AFTER DELETE ON `usuario` FOR EACH ROW BEGIN
-  INSERT INTO usuarios_excluidos (id_usuario, nome, email, cpf)
-  VALUES (OLD.id_usuario, OLD.nome, OLD.email, OLD.cpf);
-END */;;
-DELIMITER ;
-/*!50003 SET sql_mode              = @saved_sql_mode */ ;
-/*!50003 SET character_set_client  = @saved_cs_client */ ;
-/*!50003 SET character_set_results = @saved_cs_results */ ;
-/*!50003 SET collation_connection  = @saved_col_connection */ ;
-
---
--- Table structure for table `usuarios_excluidos`
---
-
-DROP TABLE IF EXISTS `usuarios_excluidos`;
-/*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!50503 SET character_set_client = utf8mb4 */;
-CREATE TABLE `usuarios_excluidos` (
-  `id_usuario` int DEFAULT NULL,
-  `nome` varchar(100) DEFAULT NULL,
-  `email` varchar(100) DEFAULT NULL,
-  `cpf` varchar(20) DEFAULT NULL,
-  `data_exclusao` timestamp NULL DEFAULT CURRENT_TIMESTAMP
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
-/*!40101 SET character_set_client = @saved_cs_client */;
-
---
--- Dumping data for table `usuarios_excluidos`
---
-
-LOCK TABLES `usuarios_excluidos` WRITE;
-/*!40000 ALTER TABLE `usuarios_excluidos` DISABLE KEYS */;
-/*!40000 ALTER TABLE `usuarios_excluidos` ENABLE KEYS */;
-UNLOCK TABLES;
 
 --
 -- Dumping events for database 'projeto_senai'
 --
 /*!50106 SET @save_time_zone= @@TIME_ZONE */ ;
-/*!50106 DROP EVENT IF EXISTS `bloquear_usuarios` */;
+/*!50106 DROP EVENT IF EXISTS `bloquear_usuarios_abusivos` */;
 DELIMITER ;;
 /*!50003 SET @saved_cs_client      = @@character_set_client */ ;;
 /*!50003 SET @saved_cs_results     = @@character_set_results */ ;;
@@ -257,7 +214,7 @@ DELIMITER ;;
 /*!50003 SET sql_mode              = 'ONLY_FULL_GROUP_BY,STRICT_TRANS_TABLES,NO_ZERO_IN_DATE,NO_ZERO_DATE,ERROR_FOR_DIVISION_BY_ZERO,NO_ENGINE_SUBSTITUTION' */ ;;
 /*!50003 SET @saved_time_zone      = @@time_zone */ ;;
 /*!50003 SET time_zone             = 'SYSTEM' */ ;;
-/*!50106 CREATE*/ /*!50117 DEFINER=`malu`@`%`*/ /*!50106 EVENT `bloquear_usuarios` ON SCHEDULE EVERY 1 DAY STARTS '2025-06-04 15:22:02' ON COMPLETION NOT PRESERVE ENABLE DO BEGIN
+/*!50106 CREATE*/  /*!50106 EVENT `bloquear_usuarios_abusivos` ON SCHEDULE EVERY 1 DAY STARTS '2025-06-04 08:07:33' ON COMPLETION NOT PRESERVE ENABLE DO BEGIN
   UPDATE usuario
   SET status = 'bloqueado'
   WHERE id_usuario IN (
@@ -351,7 +308,7 @@ DELIMITER ;
 /*!50003 SET @saved_sql_mode       = @@sql_mode */ ;
 /*!50003 SET sql_mode              = 'ONLY_FULL_GROUP_BY,STRICT_TRANS_TABLES,NO_ZERO_IN_DATE,NO_ZERO_DATE,ERROR_FOR_DIVISION_BY_ZERO,NO_ENGINE_SUBSTITUTION' */ ;
 DELIMITER ;;
-CREATE PROCEDURE `cancelar_reserva`(
+CREATE ` PROCEDURE `cancelar_reserva`(
     IN p_id_reserva INT
 )
 BEGIN
@@ -403,4 +360,4 @@ DELIMITER ;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2025-06-04 15:30:32
+-- Dump completed on 2025-06-04 10:54:59

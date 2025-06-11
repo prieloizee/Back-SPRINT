@@ -18,3 +18,6 @@ BEGIN
 END$$
 
 DELIMITER ;
+
+SET time_zone = '-03:00';
+
