@@ -82,7 +82,7 @@ UNLOCK TABLES;
 /*!50003 SET @saved_sql_mode       = @@sql_mode */ ;
 /*!50003 SET sql_mode              = 'ONLY_FULL_GROUP_BY,STRICT_TRANS_TABLES,NO_ZERO_IN_DATE,NO_ZERO_DATE,ERROR_FOR_DIVISION_BY_ZERO,NO_ENGINE_SUBSTITUTION' */ ;
 DELIMITER ;;
-/*!50003 CREATE*/ /*!50017 DEFINER=`malu`@`%`*/ /*!50003 TRIGGER `verifica_status_usuario_before_insert` BEFORE INSERT ON `reserva` FOR EACH ROW BEGIN
+/*!50003 CREATE*/ /*!50017 DEFINER=`malu`@`%`*/ /*!50003 TRIGGER `verifica_status_usuario` BEFORE INSERT ON `reserva` FOR EACH ROW BEGIN
   DECLARE user_status VARCHAR(10);
 
   SELECT status INTO user_status FROM usuario WHERE id_usuario = NEW.fk_id_usuario;
@@ -180,7 +180,7 @@ CREATE TABLE `usuario` (
   `nome` varchar(50) NOT NULL,
   `email` varchar(50) NOT NULL,
   `cpf` varchar(50) NOT NULL,
-  `senha` varchar(50) NOT NULL,
+  `senha` varchar(255) NOT NULL,
   `status` varchar(20) NOT NULL DEFAULT 'ativo',
   PRIMARY KEY (`id_usuario`),
   UNIQUE KEY `email` (`email`),
@@ -245,7 +245,7 @@ UNLOCK TABLES;
 -- Dumping events for database 'projeto_senai'
 --
 /*!50106 SET @save_time_zone= @@TIME_ZONE */ ;
-/*!50106 DROP EVENT IF EXISTS `bloquear_usuarios_abusivos` */;
+/*!50106 DROP EVENT IF EXISTS `bloquear_usuarios` */;
 DELIMITER ;;
 /*!50003 SET @saved_cs_client      = @@character_set_client */ ;;
 /*!50003 SET @saved_cs_results     = @@character_set_results */ ;;
@@ -257,7 +257,7 @@ DELIMITER ;;
 /*!50003 SET sql_mode              = 'ONLY_FULL_GROUP_BY,STRICT_TRANS_TABLES,NO_ZERO_IN_DATE,NO_ZERO_DATE,ERROR_FOR_DIVISION_BY_ZERO,NO_ENGINE_SUBSTITUTION' */ ;;
 /*!50003 SET @saved_time_zone      = @@time_zone */ ;;
 /*!50003 SET time_zone             = 'SYSTEM' */ ;;
-/*!50106 CREATE*/ /*!50117 DEFINER=`malu`@`%`*/ /*!50106 EVENT `bloquear_usuarios_abusivos` ON SCHEDULE EVERY 1 DAY STARTS '2025-06-04 15:22:02' ON COMPLETION NOT PRESERVE ENABLE DO BEGIN
+/*!50106 CREATE*/ /*!50117 DEFINER=`malu`@`%`*/ /*!50106 EVENT `bloquear_usuarios` ON SCHEDULE EVERY 1 DAY STARTS '2025-06-04 15:22:02' ON COMPLETION NOT PRESERVE ENABLE DO BEGIN
   UPDATE usuario
   SET status = 'bloqueado'
   WHERE id_usuario IN (

@@ -1,19 +1,20 @@
 -- mostra todas as reservas de um usuario
 
-delimiter $$
-create function total_reservas_usuario(id_usuario int)
-returns int
-reads sql data
-begin
-    declare total int;
+DELIMITER $$
+CREATE FUNCTION total_reservas_usuario(id_usuario INT)
+RETURNS INT
+READS SQL DATA
+BEGIN
+    DECLARE total INT;
 
-    select count(*) into total
-    from reserva
-    where id_usuario = reserva.fk_id_usuario;
+    SELECT COUNT(*) INTO total
+    FROM reserva
+    WHERE fk_id_usuario = id_usuario;
 
-    return total;
-    end; $$
-    delimiter ;
+    RETURN total;
+END $$ 
+DELIMITER ;
+
 
 select total_reservas_usuario(3) as "Total de reservas";
 

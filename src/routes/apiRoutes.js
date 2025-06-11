@@ -14,8 +14,6 @@ router.put('/usuario/:id', verifyJWT, controllerCadastro.updateUserById);
 router.get('/totalReservas/:id_usuario', controllerCadastro.getTotalReservas);
 
 
-
-
 //Rotas salas
 router.post('/sala',verifyJWT, controllerSala.createSala);
 router.get('/salas',controllerSala.getAllSalas);
